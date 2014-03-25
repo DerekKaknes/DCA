@@ -20,9 +20,7 @@ def load_txt_list(filename, dtype = "str"):
     raw_text_input = np.loadtxt(filename, dtype)
     line_parsed_list = []
     for seq in raw_text_input:
-      # !!! TRUNCATED TO SIMPLIFY CALCS IN DEVELOPMENT !!!
-      seq = list(seq[0:50])
-      # !!! TRUNCATED TO SIMPLIFY CALCS IN DEVELOPMENT !!!
+      seq = list(seq)
       line_parsed_list.append(seq)
     data_matrix = np.array(line_parsed_list)
     return [line_parsed_list, data_matrix, raw_text_input]

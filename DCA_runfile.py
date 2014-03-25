@@ -6,7 +6,7 @@ import sys
 import csv
 
 # Import Data
-[concat_list, concat_matrix, concat_list_raw] = load_txt_list('sequence_list')
+[concat_list, concat_matrix, concat_list_raw] = load_txt_list('sequence_list_abbrev')
 
 # Instantiate Constants
 AA_out='0'
@@ -38,3 +38,4 @@ np.savetxt('stocks_fiA_out', fiA_out_list)
 np.savetxt('stocks_eij', eij_matrix)
 np.savetxt('Covariant Matrix', Cij_matrix)
 
+print "End of program"

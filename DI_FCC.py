@@ -6,12 +6,11 @@ import random as rand
 
 concat_list_raw=np.loadtxt('sequence_list_abbrev', dtype = 'str')
 
-print concat_list_raw[0]
 
 concat_list = []
 for seq in concat_list_raw:
 
-    seq = list(seq)
+    seq = list(seq[:50])
     concat_list.append(seq)
 
 concat_matrix=np.array(concat_list)
@@ -70,7 +69,7 @@ np.savetxt('stock_km_matrix', km_matrix)
 # calculate number of effective sequences (Meff)
 
 Meff = sum(km_matrix)
-print 'Meff = ', Meff
+#print 'Meff = ', Meff
 
 lam=Meff
 
@@ -122,7 +121,7 @@ fijAB_matrix=np.zeros((dimension,dimension))
 i=0
 while i<L:
     i=i+1
-    print '     ',i
+    #print '     ',i
     j=0
     while j<L:
         j=j+1
@@ -132,7 +131,6 @@ while i<L:
             i_val=concat_matrix[t-1][i-1]
             j_val=concat_matrix[t-1][j-1]
             if i_val != AA_out and j_val != AA_out:
-                print '[i_val, j_val]',[i_val, j_val]
                 i_index=AA_matrix.index(i_val)
                 j_index=AA_matrix.index(j_val)
                 pair_address_x=(i-1)*2+i_index
