@@ -4,7 +4,7 @@ import random as rand
 
 #load concatenated sequences
 
-concat_list_raw=np.loadtxt('sequence_list', dtype = 'str')
+concat_list_raw=np.loadtxt('sequence_list_abbrev', dtype = 'str')
 
 print concat_list_raw[0]
 
@@ -132,6 +132,7 @@ while i<L:
             i_val=concat_matrix[t-1][i-1]
             j_val=concat_matrix[t-1][j-1]
             if i_val != AA_out and j_val != AA_out:
+                print '[i_val, j_val]',[i_val, j_val]
                 i_index=AA_matrix.index(i_val)
                 j_index=AA_matrix.index(j_val)
                 pair_address_x=(i-1)*2+i_index
@@ -180,6 +181,7 @@ eij_matrix=-eij_matrix1
 np.savetxt('stocks_fiA', fiA_vector1)
 np.savetxt('stocks_fiA_out', fiA_out_list)
 np.savetxt('stocks_eij', eij_matrix)
+np.savetxt('Covariant Matrix', Cij_matrix)
 
 # save
 
