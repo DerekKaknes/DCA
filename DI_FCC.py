@@ -1,21 +1,20 @@
 import numpy as np
 import numpy.linalg as npl
 import random as rand
+import time
 
 #load concatenated sequences
 
-concat_list_raw=np.loadtxt('sequence_list_abbrev', dtype = 'str')
+concat_list_raw=np.loadtxt('sequence_list', dtype = 'str')
 
 
 concat_list = []
 for seq in concat_list_raw:
 
-    seq = list(seq[:50])
+
     concat_list.append(seq)
 
 concat_matrix=np.array(concat_list)
-
-print np.shape(concat_matrix)
 
 #compile sequence matrix
 
@@ -23,12 +22,9 @@ print np.shape(concat_matrix)
 
 AA_out='0'
 x=0.7
-L=len(concat_list[0])
-M=len(concat_list)
+[M,L] = np.shape(concat_matrix)
 q=3
 AA_matrix=['+','-']
-
-L = len(concat_matrix[0])
 
 # calculate km
 
@@ -136,6 +132,10 @@ while i<L:
                 pair_address_x=(i-1)*2+i_index
                 pair_address_y=(j-1)*2+j_index
                 fijAB_matrix[pair_address_y][pair_address_x]=fijAB_matrix[pair_address_y][pair_address_x]+km_matrix[t-1]
+                print "Companies (j,i,day) ",[j,i,t], "Pair Address: ",[pair_address_y, pair_address_x]," Returns: ",[j_val, i_val], " fijAB value: ",fijAB_matrix[pair_address_y][pair_address_x]
+                print "Sum of frequency matrix = ", sum(sum(fijAB_matrix))                
+                time.sleep(.5)
+
 
 fijAB_matrix=fijAB_matrix+(lam/float(q**2))
 fijAB_matrix=fijAB_matrix/float(lam+Meff)
