@@ -5,7 +5,7 @@ import time
 
 #load concatenated sequences
 
-concat_list_raw=np.loadtxt('sequence_list', dtype = 'str')
+concat_list_raw=np.loadtxt('test_sequence.txt', dtype = 'str')
 
 
 concat_list = []
@@ -104,6 +104,9 @@ while t<L:
 fiA_vector1=np.array(fiA_matrix_matrix)
 fiA_vector2=np.reshape(fiA_vector1, (2*L,1))
 fiAB=fiA_vector1*fiA_vector2
+print "fiAV1: ", fiA_vector1, np.shape(fiA_vector1)
+print "fiAV2: ", fiA_vector2, np.shape(fiA_vector2)
+print "fiAB", fiAB
 
 #calculate single amino acid frequencies (fiA)
 
@@ -133,9 +136,6 @@ while i<L:
                 pair_address_y=(j-1)*2+j_index
                 fijAB_matrix[pair_address_y][pair_address_x]=fijAB_matrix[pair_address_y][pair_address_x]+km_matrix[t-1]
                 print "Companies (j,i,day) ",[j,i,t], "Pair Address: ",[pair_address_y, pair_address_x]," Returns: ",[j_val, i_val], " fijAB value: ",fijAB_matrix[pair_address_y][pair_address_x]
-                print "Sum of frequency matrix = ", sum(sum(fijAB_matrix))                
-                time.sleep(.5)
-
 
 fijAB_matrix=fijAB_matrix+(lam/float(q**2))
 fijAB_matrix=fijAB_matrix/float(lam+Meff)
@@ -145,6 +145,7 @@ fijAB_matrix=fijAB_matrix/float(lam+Meff)
 # calculate empirical correlation matrix
 
 Cij_matrix=fijAB_matrix-fiAB
+print "Cij ", Cij_matrix, np.shape(Cij_matrix)
 
 t=0
 while t<L:

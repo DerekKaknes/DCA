@@ -15,70 +15,72 @@ def load_txt_list(filename, dtype = "str"):
     print "Executing load_txt_list..."
     raw_text_input = np.loadtxt(filename, dtype)
     line_parsed_list = []
-    for seq in raw_text_input:
-      seq = list(seq)
-      line_parsed_list.append(seq)
+    for sequence in raw_text_input:
+      line_parsed_list.append(list(sequence))
+      print "Seq: ", sequence
     data_matrix = np.array(line_parsed_list)
     return [line_parsed_list, data_matrix, raw_text_input]
 
 
-def single_residue_freq(concat_matrix, AA_matrix, q, AA_out, km_matrix):
+def single_residue_freq(concat_matrix, AA_matrix, AA_out, km_matrix):
   print "Executing single_residue_freq..."
 
   [M,L] = np.shape(concat_matrix)
   Meff = sum(km_matrix)
   lam = Meff
-  fiA_matrix_matrix=[]
-  fiA_out_list=[]
-  insert_state_list = []
+  q = len(AA_matrix) + len(AA_out)
+  fiA_matrix_matrix = np.zeros((L,2), int)
+  fiA_out_list = np.zeros(L, int)
 
-  # iterate over length of data sequence (L is number of timeseries points)
+  # iterate over each amino acid position in the protein sequence (L is the length of the sequence)
   for i in range(L):
-      count_matrix=[0]*2
-      out_count=0
+      count_matrix = np.zeros(2, int)
+      out_count = 0
 
-      # iterate over length of actors (M is number of companies in data set)
+      # iterate over each sample (M is number of experimentally determined sequences)
       for j in range(M):
-          km = km_matrix[j]
+          km = km_matrix[j] # km would normally down-weight sequences that are over-represented in the available experimental data
           if concat_matrix[j][i] != AA_out:
-              index=AA_matrix.index(concat_matrix[j][i])
+              index = AA_matrix.index(concat_matrix[j][i])
               count_matrix[index] += km
           else:
               out_count += km
 
-      fiA_matrix = []
-      for k in range(2):
+      position_frequency_count = np.zeros(len(count_matrix), int)
+      for k in range(len(count_matrix)):
           fiA = (1 / float(lam + Meff)) * ((lam / float(q)) + count_matrix[k])
-          fiA_matrix.append(fiA)
-
+          position_frequency_count[k] = fiA
 
       #fiA_out is (1/(2*M)(M/q)) + out_count
       fiA_out = (1 / float(lam + Meff)) * ((lam / float(q)) + out_count)
-      fiA_matrix_matrix += fiA_matrix
-      fiA_out_list.append(fiA_out)
+      fiA_out = out_count
+      fiA_matrix_matrix[i] = position_frequency_count
+      fiA_out_list[i] = fiA_out
+
 
   #returns from while loops: fiA_matrix_matrix and fiAB (only values that persist in later calcs)
-  fiA_vector1 = np.array(fiA_matrix_matrix)
-  fiA_vector2 = np.reshape(fiA_vector1, (2*L,1))
-  fiAB=fiA_vector1 * fiA_vector2
-  return [fiA_matrix_matrix, fiAB, fiA_vector1, fiA_out_list]
+  fiA_vector = np.reshape(fiA_matrix_matrix, 2 * L)
+  fiA_trans = np.reshape(fiA_vector, (2*L, 1))
+  fiAB = fiA_trans * fiA_vector 
+  return [fiA_matrix_matrix, fiAB, fiA_vector, fiA_out_list]
 
 def residue_pair_freq(concat_matrix, km_matrix, AA_matrix, AA_out):
   print "Executing residue_pair_freq..."
   [M,L] = np.shape(concat_matrix)
   Meff = sum(km_matrix)
   lam = Meff
+  q = len(AA_matrix) + len(AA_out)
 
-  fijAB_matrix=np.zeros((2*L,2*L))
-  print "Sum of frequency matrix = ", sum(sum(fijAB_matrix))
+  fijAB_matrix = np.zeros((2*L,2*L))
+
   time1 = time.time()
-  for i in range(20):
+  for i in range(L):
     time2 = time.time()
     diff = time2 - time1
     time1 = time2
-    print "Executed residue ",i," in ",diff," seconds"
-    for j in range(15):
-      for day in range(10): # M is very long, 3801 items, reps the number of trading day data points
+    #print "Executed residue ",i," in ",diff," seconds"
+    for j in range(L):
+      for day in range(M): # M is very long, 3801 items, reps the number of trading day data points
         i_return = concat_matrix[day][i] # the return (+,-,0) of company i on day k
         j_return = concat_matrix[day][j] # the return (+,-,0) of company j on day k
         if i_return != AA_out and j_return != AA_out: # if the return of CompA and CompB is non-zero, then:
@@ -87,9 +89,8 @@ def residue_pair_freq(concat_matrix, km_matrix, AA_matrix, AA_out):
           pair_address_x = (i) * 2 + i_index # paX equals double the company index (i) plus the amino acid index
           pair_address_y = (j) * 2 + j_index
           fijAB_matrix[pair_address_y][pair_address_x] += km_matrix[day]
-          print "Companies (j,i, day) ",[j,i,day], "Pair Address: ",[pair_address_y, pair_address_x]," Returns: ",[j_return, i_return], " fijAB value: ",fijAB_matrix[pair_address_y][pair_address_x]
-          print "Sum of frequency matrix = ", sum(sum(fijAB_matrix))
-          time.sleep(0.5)
+          #print "Companies (j,i, day) ",[j,i,day], "Pair Address: ",[pair_address_y, pair_address_x]," Returns: ",[j_return, i_return], " fijAB value: ",fijAB_matrix[pair_address_y][pair_address_x]
+          #print "Sum of frequency matrix = ", sum(sum(fijAB_matrix))
 
   fijAB_matrix = fijAB_matrix + (lam / float(q**2))
   fijAB_matrix = fijAB_matrix / float(lam + Meff)
@@ -99,6 +100,7 @@ def generate_covariance_matrix(fijAB_matrix, fiAB, fiA_matrix_matrix):
   print "Executing generate_covariance_matrix..."
   L = len(fiAB)/2
   Cij_matrix = fijAB_matrix - fiAB
+  fiA_matrix_matrix = np.reshape(fiA_matrix_matrix, (np.size(fiA_matrix_matrix)))
 
   for i in range(L):
     for j in range(2):

@@ -11,16 +11,16 @@ if generate_Cij == "Yes":
 
   # Import Data
   ts = time.time()
-  [concat_list, concat_matrix, concat_list_raw] = load_txt_list('sequence_list')
+  [concat_list, concat_matrix, concat_list_raw] = load_txt_list('test_sequence.txt')
   runtime = time.time() - ts
   print "Executed in ", runtime, "seconds"
 
   # Instantiate Constants
-  AA_out='0'
-  AA_matrix=['+','-']
-  x=0.7
+  AA_out = '0'
+  AA_matrix = ['+','-']
+  x = 0.7
   q = len(AA_matrix) + len(AA_out)
-  [M,L] = np.shape(concat_matrix)
+  [M, L] = np.shape(concat_matrix)
 
   # IN FUTURE INSERT Km IMPLEMENTATION
   km_matrix = np.array([1]*M)
@@ -28,7 +28,7 @@ if generate_Cij == "Yes":
 
   # Calculate single frequencies (fiA)
   ts = time.time()
-  [fiA_matrix_matrix, fiAB, fiA_vector1, fiA_out_list] = single_residue_freq(concat_matrix, AA_matrix, q, AA_out, km_matrix)
+  [fiA_matrix_matrix, fiAB, fiA_vector1, fiA_out_list] = single_residue_freq(concat_matrix, AA_matrix, AA_out, km_matrix)
   runtime = time.time() - ts
   print "Executed in ", runtime, "seconds"
 
@@ -61,7 +61,6 @@ else:
   fiA_vector1 = np.loadtxt('stocks_fiA')
   eij_matrix = np.loadtxt('stocks_eij')
   fiA_out_list = np.loadtxt('stocks_fiA_out')
-  q = 3
   L = len(fiA_vector1)/2
 
 
@@ -81,3 +80,4 @@ np.savetxt('fiA_list_list', fiA_matrix)
 np.savetxt('stocks_DI_scores', DI_matrix)
 
 print "End of program - executed in ", time.time() - global_start, "seconds"
+print "DI Scores: ", DI_matrix
